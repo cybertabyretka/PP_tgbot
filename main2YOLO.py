@@ -6,7 +6,7 @@ from aiogram.types import Message, ContentType, FSInputFile
 from tensorflow.keras.models import load_model
 import numpy as np
 from PIL import Image
-from results_handler import handle_results
+from results_handler2YOLO import handle_results
 from ultralytics import YOLO
 
 
@@ -14,17 +14,22 @@ FACES_MAX_COUNT = 20
 
 API_TOKEN = ""
 
-MODEL_PATH = "models/1/weights.pt"
-# MODEL_PATH = "../models/1/model.keras"
+MMPI_MODEL_PATH = "models/2/mmpi.pt"
+MBTI_MODEL_PATH = "models/2/mbti.pt"
 
 CASCADE_PATH = cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
 
-# model = load_model(MODEL_PATH)
-model = YOLO(MODEL_PATH)
+mbti_model = YOLO(MBTI_MODEL_PATH)
+mmpi_model = YOLO(MMPI_MODEL_PATH)
 face_cascade = cv2.CascadeClassifier(CASCADE_PATH)
 
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher()
+
+
+@dp.message(F.content_type == ContentType.DOCUMENT)
+async def handle_photo_doc(message: Message):
+    await message.answer("Отправяйте не файлом")
 
 
 async def send_reply_on_photo(message: Message, file, answer):
@@ -67,20 +72,25 @@ async def handle_photo(message: Message):
 
                 face = image[y:y + h, x:x + w]
 
-                # input_data = preprocess_image(face)
-                # prediction = model.predict(input_data)
-                prediction = model(face)
-                prediction = [(prediction[0].probs.top5[i], prediction[0].probs.top5conf[i]) for i in range(len(prediction[0].probs.top5))]
-                # prediction = sorted(enumerate(prediction[0]), key=lambda x: x[1], reverse=True)[:5]
-                # print(prediction)
-                answer = handle_results(prediction)
+                mbti_prediction = mbti_model(face)
+                mmpi_prediction = mmpi_model(face)
+                prediction = [(
+                    mbti_prediction[0].probs.top5[i] + 1,
+                    mmpi_prediction[0].probs.top5[i] + 1,
+                    mbti_prediction[0].probs.top5conf[i],
+                    mmpi_prediction[0].probs.top5conf[i]) for i in range(len(mbti_prediction[0].probs.top5))]
+                predictions = []
+                for i in range(5):
+                    for j in range(5):
+                        predictions.append((prediction[i][0], prediction[j][1], prediction[i][2] * prediction[j][3]))
+                predictions.sort(key=lambda x: x[2], reverse=True)
+                answer = handle_results(predictions[:5])
 
                 face_path = f"downloads/face_{photo.file_id}_{i}.jpg"
                 cv2.imwrite(face_path, face)
 
                 input_file = FSInputFile(face_path)
                 await send_reply_on_photo(message, input_file, answer)
-                # await message.answer_photo(input_file, caption=f"Результат модели:\n{predictions_with_probabilities}")
 
                 os.remove(face_path)
 

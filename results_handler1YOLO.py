@@ -9,17 +9,17 @@ def handle_results(
         MMPILinks_file_path="MMPILinks.json"
 ):
     try:
-        with (open(metrics_file_path, "r", encoding="utf-8") as metrics,
-              open(MBTILinks_file_path, "r", encoding="utf-8") as MBTILinks,
-              open(MMPILinks_file_path, "r", encoding="utf-8") as MMPILinks):
+        with (open(metrics_file_path, 'r', encoding='utf-8') as metrics,
+              open(MBTILinks_file_path, "r", encoding="utf-8") as MBTILinks_json,
+              open(MMPILinks_file_path, "r", encoding="utf-8") as MMPILinks_json):
             metrics = json.load(metrics)
-            MBTILinks = json.load(MBTILinks)
-            MMPILinks = json.load(MMPILinks)
+            MBTILinks_dict = json.load(MBTILinks_json)
+            MMPILinks_dict = json.load(MMPILinks_json)
             answer = []
             for result in results:
                 MBTI, MMPI = metrics.get(str(result[0] + 1)).split()
-                MBTILink = MBTILinks.get(MBTI)
-                MMPILink = MMPILinks.get(MMPI)
+                MBTILink = MBTILinks_dict.get(MBTI)
+                MMPILink = MMPILinks_dict.get(MMPI)
                 answer.append((MBTI, MMPI, MBTILink, MMPILink, result[1]))
             return answer
     except FileNotFoundError:
