@@ -36,8 +36,8 @@ async def send_reply_on_photo(message: Message, file, answer):
     str_answer = ''
     for result in answer:
         probability = str(round(float(result[4]), 4)).replace('.', ',')
-        str_answer += f'[{result[0]}]({result[2]}) [{result[1]}]({result[3]}), Вероятность: {probability}\n'
-    await message.answer_photo(file, str_answer, parse_mode="MarkdownV2")
+        str_answer += f'<a href="{result[2]}">{result[0]}</a> <a href="{result[3]}">{result[1]}</a>, Вероятность: {probability}\n'
+    await message.answer_photo(file, str_answer, parse_mode="HTML")
 
 
 def preprocess_image(image):
@@ -50,6 +50,7 @@ def preprocess_image(image):
 
 @dp.message(F.content_type == ContentType.PHOTO)
 async def handle_photo(message: Message):
+    await message.answer("Обработка...")
     photo = message.photo[-1]
     file_info = await bot.get_file(photo.file_id)
     file_path = f"downloads/{photo.file_id}.jpg"
