@@ -12,7 +12,7 @@ from ultralytics import YOLO
 
 FACES_MAX_COUNT = 20
 
-API_TOKEN = ""
+API_TOKEN = "7890742463:AAFI1_gTFMssmmldKtteStdDpcceI9hKBNA"
 
 MODEL_PATH = "models/1/weights.pt"
 # MODEL_PATH = "../models/1/model.keras"
