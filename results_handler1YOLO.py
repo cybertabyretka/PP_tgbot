@@ -17,7 +17,8 @@ def handle_results(
             MMPILinks_dict = json.load(MMPILinks_json)
             answer = []
             for result in results:
-                MBTI, MMPI = metrics.get(str(result[0] + 1)).split()
+                MBTI_MMPI = metrics.get(str(result[0] + 1)).split()
+                MBTI, MMPI = f'{MBTI_MMPI[0]} {MBTI_MMPI[1]}', MBTI_MMPI[2]
                 MBTILink = MBTILinks_dict.get(MBTI)
                 MMPILink = MMPILinks_dict.get(MMPI)
                 answer.append((MBTI, MMPI, MBTILink, MMPILink, result[1]))

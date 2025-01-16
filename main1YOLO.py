@@ -31,7 +31,7 @@ async def send_reply_on_photo(message: Message, file, answer):
     for result in answer:
         probability = str(round(float(result[4]), 4)).replace('.', ',')
         str_answer += f'<a href="{result[2]}">{result[0]}</a> <a href="{result[3]}">{result[1]}</a>, Вероятность: {probability}\n'
-    await message.answer_photo(file, str_answer, parse_mode="MarkdownV2")
+    await message.answer_photo(file, str_answer, parse_mode="HTML")
 
 
 def preprocess_image(image):
@@ -49,7 +49,7 @@ async def handle_photo_doc(message: Message):
 
 @dp.message(F.content_type == ContentType.PHOTO)
 async def handle_photo(message: Message):
-    await message.answer("Обработка...")
+    processing_message = await message.answer("Обработка...")
     photo = message.photo[-1]
     file_info = await bot.get_file(photo.file_id)
     file_path = f"downloads/{photo.file_id}.jpg"
@@ -61,6 +61,8 @@ async def handle_photo(message: Message):
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
         faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30))
+
+        await bot.delete_message(chat_id=message.chat.id, message_id=processing_message.message_id)
 
         if len(faces) == 0:
             await message.answer("Лица не обнаружены на изображении.")
