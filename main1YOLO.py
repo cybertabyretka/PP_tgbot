@@ -96,7 +96,7 @@ async def handle_photo(message: Message):
 
 @dp.message(F.text == "/start")
 async def send_welcome(message: Message):
-    await message.answer("Привет! Отправь мне фото, и я обработаю его с помощью нейросети. (Максимум лиц на фото - 20)")
+    await message.answer('Привет! Отправь мне фото лица человека, и я определю типы личности и характера этого человека с помощью нейросети. (Максимум лиц на фото - 20) <a href="https://www.16personalities.com/ru/tipy-lichnosti">Типы личности</a>, <a href="https://stakanchik.media/article/8-tipov-xaraktera-osobennosti-vospriyatiya-i-obshheniya-s-kazhdym-tipom">Типы характера</a>', parse_mode='HTML')
 
 
 async def main():
